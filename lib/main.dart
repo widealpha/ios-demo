@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
+// import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 
 void main() {
   runApp(const MyApp());
@@ -59,21 +59,21 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() async {
-    final InputImage inputImage = InputImage.fromFilePath(
-        'assets/images/qr_code.png');
-    final List<BarcodeFormat> formats = [BarcodeFormat.qrCode];
-    final barcodeScanner = BarcodeScanner(formats: formats);
-    final List<Barcode> barcodes = await barcodeScanner.processImage(
-        inputImage);
-
-    for (Barcode barcode in barcodes) {
-      final BarcodeType type = barcode.type;
-      final Rect boundingBox = barcode.boundingBox;
-      final String? displayValue = barcode.displayValue;
-      final String? rawValue = barcode.rawValue;
-      debugPrint(displayValue);
-      debugPrint(rawValue);
-    }
+    // final InputImage inputImage = InputImage.fromFilePath(
+    //     'assets/images/qr_code.png');
+    // final List<BarcodeFormat> formats = [BarcodeFormat.qrCode];
+    // final barcodeScanner = BarcodeScanner(formats: formats);
+    // final List<Barcode> barcodes = await barcodeScanner.processImage(
+    //     inputImage);
+    //
+    // for (Barcode barcode in barcodes) {
+    //   final BarcodeType type = barcode.type;
+    //   final Rect boundingBox = barcode.boundingBox;
+    //   final String? displayValue = barcode.displayValue;
+    //   final String? rawValue = barcode.rawValue;
+    //   debugPrint(displayValue);
+    //   debugPrint(rawValue);
+    // }
     if (mounted) {
       setState(() {
         // This call to setState tells the Flutter framework that something has
