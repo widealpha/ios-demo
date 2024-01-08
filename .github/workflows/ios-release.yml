@@ -25,7 +25,7 @@ jobs:
         id: app_store_connect_key
         uses: timheuer/base64-to-file@v1.2
         with:
-          fileName: AuthKey_${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}.p8
+          fileName: AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}.p8
           encodedString: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_BASE64 }}
 
       - name: Download IOS App store certificate key
