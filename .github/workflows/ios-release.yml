@@ -2,7 +2,7 @@ name: IOS Release
 
 on:
   push:
-    branches: [ "feat-workflow" ]
+    branches: [ "master" ]
     tags:
       - "v*.*.*"
   workflow_dispatch:
