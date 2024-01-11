@@ -43,7 +43,6 @@ jobs:
         run: |
           pip3 install codemagic-cli-tools
           keychain initialize
-          keychain use-login
           app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
             --platform IOS \
             --type IOS_APP_STORE \
