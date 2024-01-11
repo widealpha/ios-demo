@@ -20,13 +20,13 @@ build-job:
     - ls -la
     - keychain initialize
     - keychain use-login
-    - app-store-connect fetch-signing-files com.example.iosDemo \
-      --platform IOS \
-      --type IOS_APP_STORE \
+    - app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
+      --platform=IOS \
+      --type=IOS_APP_STORE \
       --issuer-id=$APP_STORE_CONNECT_ISSUER_ID \
       --key-id=$APP_STORE_CONNECT_KEY_IDENTIFIER \
-      --private-key=@file:AuthKey.p8 \
-      --certificate-key=@file:certificate.p12 \
+      --private-key=@file:./AuthKey.p8 \
+      --certificate-key=@file:./certificate.p12 \
       --create
     - keychain add-certificates
     - xcode-project use-profiles
