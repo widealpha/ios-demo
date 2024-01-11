@@ -19,7 +19,6 @@ build-job:
     - pip3 install codemagic-cli-tools
     - ls -la
     - keychain initialize
-    - keychain use-login
     - app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) 
       --platform=IOS 
       --type=IOS_APP_STORE 
@@ -28,7 +27,6 @@ build-job:
       --private-key=@file:AuthKey.p8 
       --certificate-key=@file:cert_key 
       --create
-    - keychain show-info
     - keychain add-certificates
     - xcode-project use-profiles
     - flutter packages pub get
