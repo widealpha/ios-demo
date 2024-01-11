@@ -1,7 +1,7 @@
 .macos_saas_runners:
   tags:
     - saas-macos-medium-m1
-  image: macos-14-xcode-15
+  image: macos-12-xcode-14
   before_script:
     - echo "started by ${GITLAB_USER_NAME}"
 
@@ -9,10 +9,13 @@ stages:
   - build
 
 build-job:
+  variables:
+    SECURE_FILES_DOWNLOAD_PATH: './'
   extends:
     - .macos_saas_runners
   stage: build
   script:
+    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - pip3 install codemagic-cli-tools
     - keychain initialize
     - keychain use-login
@@ -21,8 +24,8 @@ build-job:
       --type IOS_APP_STORE \
       --issuer-id=$APP_STORE_CONNECT_ISSUER_ID \
       --key-id=$APP_STORE_CONNECT_KEY_IDENTIFIER \
-      --private-key=@file:${{ env.APP_STORE_CONNECT_PRIVATE_KEY_PATH }} \
-      --certificate-key=@file:${{ env.APP_STORE_CERTIFICATE_KEY_PATH }} \
+      --private-key=@file:AuthKey_66A9D3T36K.p8 \
+      --certificate-key=@file:certificate.p12 \
       --create
     - keychain add-certificates
     - xcode-project use-profiles
