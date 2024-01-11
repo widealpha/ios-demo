@@ -10,7 +10,7 @@ stages:
 
 build-job:
   variables:
-    SECURE_FILES_DOWNLOAD_PATH: '$CI_PROJECT_DIR/'
+    SECURE_FILES_DOWNLOAD_PATH: './'
   extends:
     - .macos_saas_runners
   stage: build
