@@ -28,7 +28,8 @@ build-job:
       --private-key=@file:AuthKey.p8 
       --certificate-key=@file:cert_key 
       --create
-    - sudo keychain add-certificates
+    - keychain unlock
+    - keychain add-certificates
     - xcode-project use-profiles
     - flutter packages pub get
     - find . -name "Podfile" -execdir pod install \;
