@@ -17,14 +17,15 @@ build-job:
   script:
     - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - pip3 install codemagic-cli-tools
+    - ls -la
     - keychain initialize
     - keychain use-login
-    - app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
+    - app-store-connect fetch-signing-files com.example.iosDemo \
       --platform IOS \
       --type IOS_APP_STORE \
       --issuer-id=$APP_STORE_CONNECT_ISSUER_ID \
       --key-id=$APP_STORE_CONNECT_KEY_IDENTIFIER \
-      --private-key=@file:AuthKey_66A9D3T36K.p8 \
+      --private-key=@file:AuthKey.p8 \
       --certificate-key=@file:certificate.p12 \
       --create
     - keychain add-certificates
