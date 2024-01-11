@@ -1,7 +1,7 @@
 .macos_saas_runners:
   tags:
     - saas-macos-medium-m1
-  image: macos-13-xcode-14
+  image: macos-12-xcode-14
   before_script:
     - echo "started by ${GITLAB_USER_NAME}"
 
