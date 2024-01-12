@@ -18,10 +18,21 @@ jobs:
         with:
           repository: 'widealpha/cave-forum'
           token: ${{ secrets.CAVE_REPO_TOKEN }}
+          ref: ${{ github.ref_name }} #使用tag的name进行check
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.16.3"
           channel: 'stable'
+
+      - name: Read flutter build number and build name
+        id: read_version
+        run: |
+          versionCode=$(grep -oP '^version:\s*\d+\.\d+\.\d+\+\K\d+' pubspec.yaml)
+          versionName=$(grep -oP '^version:\s*\K\d+\.\d+\.\d+' pubspec.yaml)
+          echo "versionCode=$versionCode" >> "$GITHUB_OUTPUT"
+          echo "versionName=$versionName" >> "$GITHUB_OUTPUT"
+
 
       - name: Download IOS App store connection private key
         id: app_store_connect_key
@@ -56,16 +67,13 @@ jobs:
             --create
           keychain add-certificates
 
-      - name: show list
-        env:
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
-          APP_STORE_CONNECT_PRIVATE_KEY_PATH: ${{ steps.app_store_connect_key.outputs.filePath }}
-        run: |
-          app-store-connect beta-app-review-submissions list $(xcode-project detect-bundle-id) \
-          --issuer-id=${{ env.APP_STORE_CONNECT_ISSUER_ID }} \
-          --key-id=${{ env.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
-          --private-key=@file:${{ env.APP_STORE_CONNECT_PRIVATE_KEY_PATH }}
+
+      - name: Fetch tags
+        run: git fetch --tags --force
+
+      - name: Get current tag annotation
+        id: tag_data
+        uses: ericcornelissen/git-tag-annotation-action@v2
 
       - name: Start IOS release build ${{ github.ref_name }}
         if: false
@@ -76,15 +84,20 @@ jobs:
           flutter build ipa --export-options-plist=$HOME/export_options.plist
           keychain use-login
 
-#      - name: Upload IOS release to artifacts
-#        uses: actions/upload-artifact@v4
-#        if: false
-#        id: upload_to_artifact
-#        with:
-#          name: cave-${{ github.ref_name }}-${{ env.ARCHITECTURE }}-release
-#          path: |
-#            build/**/*.ipa
-
-      - name: Upload IOS release to App Store
+      - name: Upload ipa to testflight
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+          APP_STORE_CONNECT_PRIVATE_KEY_PATH: ${{ steps.app_store_connect_key.outputs.filePath }}
         run: |
-          echo 'upload'
+          app-store-connect builds add-beta-test-info $(xcode-project detect-bundle-id) \
+            --issuer-id=${{ env.APP_STORE_CONNECT_ISSUER_ID }} \
+            --key-id=${{ env.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
+            --private-key=@file:${{ env.APP_STORE_CONNECT_PRIVATE_KEY_PATH }} \
+            --path=build/ios/ipa/*.ipa \
+            --locale=zh-Hans \
+            --whats-new='${{ steps.tag_data.outputs.git-tag-annotation }}' \
+            --version-string=${{ steps.read_version.outputs.versionName }} \
+            --platform=IOS \
+            --release-type=AFTER_APPROVAL \
+            --testflight
