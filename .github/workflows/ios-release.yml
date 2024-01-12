@@ -34,7 +34,7 @@ jobs:
         id: app_store_certificate_key
         uses: timheuer/base64-to-file@v1.2
         with:
-          fileName: certificate.p12
+          fileName: cert_key
           encodedString: ${{ secrets.APP_STORE_CERTIFICATE_KEY_BASE64 }}
 
       - name: Install the Apple certificate and provisioning profile
@@ -56,7 +56,19 @@ jobs:
             --create
           keychain add-certificates
 
+      - name: show list
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+          APP_STORE_CONNECT_PRIVATE_KEY_PATH: ${{ steps.app_store_connect_key.outputs.filePath }}
+        run: |
+          app-store-connect beta-app-review-submissions list $(xcode-project detect-bundle-id) \
+          --issuer-id=${{ env.APP_STORE_CONNECT_ISSUER_ID }} \
+          --key-id=${{ env.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
+          --private-key=@file:${{ env.APP_STORE_CONNECT_PRIVATE_KEY_PATH }}
+
       - name: Start IOS release build ${{ github.ref_name }}
+        if: false
         run: |
           xcode-project use-profiles
           flutter packages pub get
@@ -64,14 +76,15 @@ jobs:
           flutter build ipa --export-options-plist=$HOME/export_options.plist
           keychain use-login
 
-      - name: Upload IOS release to artifacts
-        uses: actions/upload-artifact@v4
-        id: upload_to_artifact
-        with:
-          name: cave-${{ github.ref_name }}-${{ env.ARCHITECTURE }}-release
-          path: |
-            build/**/*.ipa
+#      - name: Upload IOS release to artifacts
+#        uses: actions/upload-artifact@v4
+#        if: false
+#        id: upload_to_artifact
+#        with:
+#          name: cave-${{ github.ref_name }}-${{ env.ARCHITECTURE }}-release
+#          path: |
+#            build/**/*.ipa
 
       - name: Upload IOS release to App Store
         run: |
-          ls build/ios
+          echo 'upload'
