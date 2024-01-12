@@ -25,7 +25,14 @@ jobs:
           flutter-version: "3.16.3"
           channel: 'stable'
 
-      - name: Read flutter build number and build name
+      - name: Fetch tags
+        run: git fetch --tags --force
+
+      - name: Get current tag annotation
+        id: tag_data
+        uses: ericcornelissen/git-tag-annotation-action@v2
+
+      - name: Read flutter and version build name
         id: read_version
         run: |
           versionName=$(grep -oE '^version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+' pubspec.yaml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
@@ -64,16 +71,7 @@ jobs:
             --create
           keychain add-certificates
 
-
-      - name: Fetch tags
-        run: git fetch --tags --force
-
-      - name: Get current tag annotation
-        id: tag_data
-        uses: ericcornelissen/git-tag-annotation-action@v2
-
       - name: Start IOS release build ${{ github.ref_name }}
-        if: false
         run: |
           xcode-project use-profiles
           flutter packages pub get
@@ -87,7 +85,7 @@ jobs:
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
           APP_STORE_CONNECT_PRIVATE_KEY_PATH: ${{ steps.app_store_connect_key.outputs.filePath }}
         run: |
-          app-store-connect builds add-beta-test-info $(xcode-project detect-bundle-id) \
+          app-store-connect push \
             --issuer-id=${{ env.APP_STORE_CONNECT_ISSUER_ID }} \
             --key-id=${{ env.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
             --private-key=@file:${{ env.APP_STORE_CONNECT_PRIVATE_KEY_PATH }} \
