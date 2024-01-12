@@ -94,6 +94,9 @@ jobs:
             --version-string=${{ steps.read_version.outputs.versionName }} \
             --platform=IOS \
             --release-type=MANUAL \
+            --support-url='https://handfisher.uk' \
+            --keywords="cave,forum" \
+            --description="世一大山洞" \
             --testflight
 
       - name: Reset to default login key chain
