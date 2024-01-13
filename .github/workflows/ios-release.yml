@@ -51,37 +51,39 @@ jobs:
         with:
           fileName: cert_key
           encodedString: ${{ secrets.APP_STORE_CERTIFICATE_KEY_BASE64 }}
-
-      - name: Install the Apple certificate and provisioning profile
+      - name: Init code magic and App store code magic env
         env:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
           APP_STORE_CONNECT_PRIVATE_KEY_PATH: ${{ steps.app_store_connect_key.outputs.filePath }}
-          APP_STORE_CERTIFICATE_KEY_PATH: ${{ steps.app_store_certificate_key.outputs.filePath }}
         run: |
           pip3 install codemagic-cli-tools
+          export APP_STORE_CONNECT_ISSUER_ID=${{ env.APP_STORE_CONNECT_ISSUER_ID }}
+          export APP_STORE_CONNECT_KEY_IDENTIFIER=${{ env.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+          export APP_STORE_CONNECT_PRIVATE_KEY=@file:${{ env.APP_STORE_CONNECT_PRIVATE_KEY_PATH }} 
+
+      - name: Install the Apple certificate and provisioning profile
+        env:
+          APP_STORE_CERTIFICATE_KEY_PATH: ${{ steps.app_store_certificate_key.outputs.filePath }}
+        run: |
           keychain initialize
           app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
             --platform=IOS \
             --type=IOS_APP_STORE \
-            --issuer-id=${{ env.APP_STORE_CONNECT_ISSUER_ID }} \
-            --key-id=${{ env.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
-            --private-key=@file:${{ env.APP_STORE_CONNECT_PRIVATE_KEY_PATH }} \
             --certificate-key=@file:${{ env.APP_STORE_CERTIFICATE_KEY_PATH }} \
             --create
           keychain add-certificates
-          app-store-connect apps list\
-            --issuer-id=${{ env.APP_STORE_CONNECT_ISSUER_ID }} \
-            --key-id=${{ env.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
-            --private-key=@file:${{ env.APP_STORE_CONNECT_PRIVATE_KEY_PATH }} \
+          app-store-connect bundle-ids list
+          app-store-connect apps list \
             --bundle-id-identifier $(xcode-project detect-bundle-id)
+
       - name: Start IOS release build ${{ github.ref_name }}
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
           xcode-project use-profiles
           flutter packages pub get
           find . -name "Podfile" -execdir pod install \;
-          flutter build ipa --export-options-plist=$HOME/export_options.plist
+          flutter build ipa --release --export-options-plist=$HOME/export_options.plist
 
       - name: Upload IOS release to artifacts
         uses: actions/upload-artifact@v4
@@ -93,17 +95,11 @@ jobs:
           retention-days: 3
 
       - name: Upload ipa to testflight
-        env:
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
-          APP_STORE_CONNECT_PRIVATE_KEY_PATH: ${{ steps.app_store_connect_key.outputs.filePath }}
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
+          APP_FILE=$(find $(pwd) -name "*.ipa")
           app-store-connect publish \
-            --issuer-id=${{ env.APP_STORE_CONNECT_ISSUER_ID }} \
-            --key-id=${{ env.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
-            --private-key=@file:${{ env.APP_STORE_CONNECT_PRIVATE_KEY_PATH }} \
-            --path=build/ios/ipa/*.ipa \
+            --path="$APP_FILE" \
             --locale=zh-Hans \
             --whats-new='${{ steps.tag_data.outputs.git-tag-annotation }}' \
             --version-string=${{ steps.read_version.outputs.versionName }} \
