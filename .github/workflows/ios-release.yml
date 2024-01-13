@@ -70,7 +70,7 @@ jobs:
             --certificate-key=@file:${{ env.APP_STORE_CERTIFICATE_KEY_PATH }} \
             --create
           keychain add-certificates
-          app-store-connect apps \
+          app-store-connect apps list\
             --issuer-id=${{ env.APP_STORE_CONNECT_ISSUER_ID }} \
             --key-id=${{ env.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
             --private-key=@file:${{ env.APP_STORE_CONNECT_PRIVATE_KEY_PATH }} \
