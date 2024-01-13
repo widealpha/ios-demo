@@ -70,8 +70,13 @@ jobs:
             --certificate-key=@file:${{ env.APP_STORE_CERTIFICATE_KEY_PATH }} \
             --create
           keychain add-certificates
-
+          app-store-connect apps \
+            --issuer-id=${{ env.APP_STORE_CONNECT_ISSUER_ID }} \
+            --key-id=${{ env.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
+            --private-key=@file:${{ env.APP_STORE_CONNECT_PRIVATE_KEY_PATH }} \
+            --bundle-id-identifier $(xcode-project detect-bundle-id)
       - name: Start IOS release build ${{ github.ref_name }}
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
           xcode-project use-profiles
           flutter packages pub get
@@ -92,6 +97,7 @@ jobs:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
           APP_STORE_CONNECT_PRIVATE_KEY_PATH: ${{ steps.app_store_connect_key.outputs.filePath }}
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
           app-store-connect publish \
             --issuer-id=${{ env.APP_STORE_CONNECT_ISSUER_ID }} \
