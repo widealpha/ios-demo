@@ -95,7 +95,6 @@ jobs:
             --version-string=${{ steps.read_version.outputs.versionName }} \
             --platform=IOS \
             --release-type=MANUAL \
-            --enable-package-validation \
             --testflight
 
       - name: Reset to default login key chain
