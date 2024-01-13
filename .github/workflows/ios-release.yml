@@ -31,6 +31,8 @@ jobs:
       - name: Get current tag annotation
         id: tag_data
         uses: ericcornelissen/git-tag-annotation-action@v2
+        with:
+         tag: ${{ github.ref_name }}
 
       - name: Read flutter and version build name
         id: read_version
