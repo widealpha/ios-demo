@@ -78,8 +78,12 @@ jobs:
 
       - name: Check this version build already exist in apple store
         run: |
-          app-store-connect apps list \
-          --bundle-id-identifier=$(xcode-project detect-bundle-id)
+          # 获取app id
+          appId=$(app-store-connect apps list \
+            --bundle-id-identifier=$(xcode-project detect-bundle-id) | awk '/Id: / {print $2}')
+          app-store-connect builds list \
+           --app-id=$appId \
+           --build-version-number=${{ steps.read_version.outputs.versionName }}
 
       - name: Start IOS release build ${{ github.ref_name }}
         if: startsWith(github.ref, 'refs/tags/v')
