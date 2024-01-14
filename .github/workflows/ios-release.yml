@@ -82,8 +82,7 @@ jobs:
           appId=$(app-store-connect apps list \
             --bundle-id-identifier=$(xcode-project detect-bundle-id) | awk '/Id: / {print $2}')
           app-store-connect builds list \
-           --app-id=$appId \
-           --build-version-number=${{ steps.read_version.outputs.versionName }}
+           --app-id=$appId
 
       - name: Start IOS release build ${{ github.ref_name }}
         if: startsWith(github.ref, 'refs/tags/v')
