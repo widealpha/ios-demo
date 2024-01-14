@@ -39,8 +39,6 @@ jobs:
         run: |
           versionCode=$(grep -oE '^version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+' pubspec.yaml | grep -oE '\+[0-9]+' | grep -oE '[0-9]+')
           versionName=$(grep -oE '^version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+' pubspec.yaml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-          echo "$versionCode"
-          echo "$versionName"
           echo "versionCode=$versionCode" >> "$GITHUB_OUTPUT"
           echo "versionName=$versionName" >> "$GITHUB_OUTPUT"
 
@@ -81,6 +79,7 @@ jobs:
           keychain add-certificates
 
       - name: Check this version build already exist in apple store
+        id: check_version
         run: |
           # 获取app id
           appId=$(app-store-connect apps list \
@@ -89,7 +88,14 @@ jobs:
           builds=$(app-store-connect builds list \
             --app-id=$appId \
             --build-version-number=${{ steps.read_version.outputs.versionCode }})
-          echo $builds
+          if [[ $builds == --\ Build\ --* ]]; then
+            echo 'Find version build already exist'
+            result='1'
+          else
+            echo 'Version build not exist'
+            result='0'
+          fi
+          echo "versionExist=${result}" >> "$GITHUB_OUTPUT"
 
       - name: Start IOS release build ${{ github.ref_name }}
         if: startsWith(github.ref, 'refs/tags/v')
@@ -102,6 +108,7 @@ jobs:
       - name: Upload ipa to testflight
         env:
           BETA_GROUP_NAME: ${{ secrets.BETA_GROUP_NAME }}
+          APP_STORE_CONNECT_SKIP_PACKAGE_UPLOAD: ${{ steps.check_version.outputs.versionExist }}
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
           APP_FILE=$(find $(pwd) -name "*.ipa")
