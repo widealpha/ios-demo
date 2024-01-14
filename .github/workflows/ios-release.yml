@@ -88,7 +88,8 @@ jobs:
           builds=$(app-store-connect builds list \
             --app-id=$appId \
             --build-version-number=${{ steps.read_version.outputs.versionCode }})
-          if [[ $builds == --\ Build\ --* ]]; then
+          echo $builds
+          if [[ $builds == *--\ Build\ --* ]]; then
             echo 'Find version build already exist'
             result='1'
           else
