@@ -39,6 +39,8 @@ jobs:
         run: |
           versionCode=$(grep -oE '^version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\+[[:digit:]]+' pubspec.yaml | grep -oE '[[:digit:]]+')
           versionName=$(grep -oE '^version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+' pubspec.yaml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          echo "$versionCode"
+          echo "$versionName"
           echo "versionCode=$versionCode" >> "$GITHUB_OUTPUT"
           echo "versionName=$versionName" >> "$GITHUB_OUTPUT"
 
