@@ -87,19 +87,19 @@ jobs:
           # 获取Build的信息
           builds=$(app-store-connect builds list \
             --app-id=$appId \
-            --build-version-number=v${{ steps.read_version.outputs.versionCode }})
+            --build-version-number=${{ steps.read_version.outputs.versionCode }})
           echo $builds
           if [[ $builds == *--\ Build\ --* ]]; then
-            echo 'Find version build already exist'
-            result='1'
+            echo 'find version build already exist'
+            result='true'
           else
-            echo 'Version build not exist'
-            result='0'
+            echo 'version build not exist'
+            result='false'
           fi
           echo "versionExist=${result}" >> "$GITHUB_OUTPUT"
 
       - name: Start IOS release build ${{ github.ref_name }}
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: ${{ steps.check_version.outputs.versionExist == 'false' }}
         run: |
           xcode-project use-profiles
           flutter packages pub get
