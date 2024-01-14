@@ -117,11 +117,9 @@ jobs:
             --path="$APP_FILE" \
             --locale=zh-Hans \
             --whats-new='${{ steps.tag_data.outputs.git-tag-annotation }}' \
-            --version-string=${{ steps.read_version.outputs.versionName }} \
-            --platform=IOS \
-            --release-type=MANUAL \
             --beta-group=${{ env.BETA_GROUP_NAME }} \
             --testflight
+            --expire-build-submitted-for-review
 
       - name: Reset to default login key chain
         run: |
