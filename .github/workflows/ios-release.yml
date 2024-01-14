@@ -87,7 +87,7 @@ jobs:
           # 获取Build的信息
           builds=$(app-store-connect builds list \
             --app-id=$appId \
-            --build-version-number=${{ steps.read_version.outputs.versionCode }})
+            --build-version-number=v${{ steps.read_version.outputs.versionCode }})
           echo $builds
           if [[ $builds == *--\ Build\ --* ]]; then
             echo 'Find version build already exist'
