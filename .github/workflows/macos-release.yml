@@ -2,7 +2,7 @@ name: MACOS Release
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "master" ]
     tags:
       - "v*.*.*"
   workflow_dispatch:

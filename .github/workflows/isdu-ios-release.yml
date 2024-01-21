@@ -99,7 +99,7 @@ jobs:
           echo "versionExist=${result}" >> "$GITHUB_OUTPUT"
 
       - name: Start IOS release build ${{ github.ref_name }}
-        if: ${{ steps.check_version.outputs.versionExist == 'false' }}
+        #if: ${{ steps.check_version.outputs.versionExist == 'false' }}
         run: |
           xcode-project use-profiles
           flutter packages pub get
