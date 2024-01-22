@@ -42,14 +42,14 @@ jobs:
           echo "versionCode=$versionCode" >> "$GITHUB_OUTPUT"
           echo "versionName=$versionName" >> "$GITHUB_OUTPUT"
 
-      - name: Download IOS App store connection private key
+      - name: Download App store connection private key
         id: app_store_connect_key
         uses: timheuer/base64-to-file@v1.2
         with:
           fileName: AuthKey.p8
           encodedString: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_BASE64 }}
 
-      - name: Download IOS App store certificate key
+      - name: Download App store certificate key
         id: app_store_certificate_key
         uses: timheuer/base64-to-file@v1.2
         with:
@@ -83,7 +83,8 @@ jobs:
         run: |
           # 获取app id
           appId=$(app-store-connect apps list \
-            --bundle-id-identifier=$(xcode-project detect-bundle-id) | awk '/Id: / {print $2}')
+            --bundle-id-identifier=$(xcode-project detect-bundle-id) \
+            --platform MAC_OS | awk '/Id: / {print $2}')
           # 获取Build的信息
           builds=$(app-store-connect builds list \
             --app-id=$appId \
@@ -98,7 +99,7 @@ jobs:
           fi
           echo "versionExist=${result}" >> "$GITHUB_OUTPUT"
 
-      - name: Start IOS release build ${{ github.ref_name }}
+      - name: Start MACOS release build ${{ github.ref_name }}
         if: ${{ steps.check_version.outputs.versionExist == 'false' }}
         run: |
           xcode-project use-profiles
