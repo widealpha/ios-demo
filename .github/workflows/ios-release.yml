@@ -111,8 +111,10 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           BETA_GROUP_NAME: ${{ secrets.BETA_GROUP_NAME }}
-          APP_STORE_CONNECT_SKIP_PACKAGE_UPLOAD: ${{ steps.check_version.outputs.uploadApp }}
         run: |
+          if [ "${{ steps.check_version.outputs.uploadApp }}" = "false" ]; then
+            export APP_STORE_CONNECT_SKIP_PACKAGE_UPLOAD=true
+          fi
           APP_FILE=$(find $(pwd) -name "*.ipa")
           app-store-connect publish \
             --path="$APP_FILE" \
