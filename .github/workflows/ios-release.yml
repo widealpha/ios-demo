@@ -92,10 +92,10 @@ jobs:
           echo $builds
           if [[ $builds == *--\ Build\ --* ]]; then
             echo 'find version build already exist'
-            result='true'
+            result='false'
           else
             echo 'version build not exist'
-            result='false'
+            result='true'
           fi
           echo "versionExist=${result}" >> "$GITHUB_OUTPUT"
 
