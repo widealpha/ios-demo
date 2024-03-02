@@ -119,7 +119,7 @@ jobs:
             --locale=zh-Hans \
             --whats-new='${{ steps.tag_data.outputs.git-tag-annotation }}' \
             --beta-group=${{ env.BETA_GROUP_NAME }} \
-            --testflight
+            --testflight \
             --expire-build-submitted-for-review
 
       - name: Upload version to Server
